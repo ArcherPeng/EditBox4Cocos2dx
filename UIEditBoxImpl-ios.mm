@@ -217,7 +217,7 @@ static const int CC_EDIT_BOX_PADDING = 5;
 }
 - (void)sendMess
 {
-    NSLog(@"Send");
+//    NSLog(@"Send");
     if ([self.textField isFirstResponder]) {
         [self.textField resignFirstResponder];
     }
@@ -467,10 +467,11 @@ EditBoxImplIOS::~EditBoxImplIOS()
 
 void EditBoxImplIOS::doAnimationWhenKeyboardMove(float duration, float distance)
 {
-    if ([_systemControl isEditState] || distance < 0.0f)
-    {
-        [_systemControl doAnimationWhenKeyboardMoveWithDuration:duration distance:distance];
-    }
+    //目前显示效果，不需要在移动画面了
+//    if ([_systemControl isEditState] || distance < 0.0f)
+//    {
+//        [_systemControl doAnimationWhenKeyboardMoveWithDuration:duration distance:distance];
+//    }
 }
 
 bool EditBoxImplIOS::initWithSize(const Size& size)
@@ -709,6 +710,8 @@ void EditBoxImplIOS::setText(const char* text)
     if ([nsText compare:_systemControl.textField.text] != NSOrderedSame)
     {
         _systemControl.textField.text = nsText;
+        _label->setString([nsText UTF8String]);
+        _label->setVisible(true);
     }
     
     refreshInactiveText();
@@ -822,7 +825,7 @@ void EditBoxImplIOS::openKeyboard()
 //	_label->setVisible(false);
     auto shuLabel = Label::createWithSystemFont("|", "Arial", _label->getSystemFontSize());
     shuLabel->setAnchorPoint(Vec2(0.1f, 0.45f));
-    shuLabel->setColor(Color3B::BLACK);
+    shuLabel->setColor(_label->getColor());
     if(_label->isVisible())
     {
         shuLabel->setPosition(Vec2(_label->getPositionX()+_label->getContentSize().width,_label->getPositionY()));
@@ -840,7 +843,7 @@ void EditBoxImplIOS::openKeyboard()
     
 	_labelPlaceHolder->setVisible(false);
 
-	_systemControl.textField.hidden = NO;
+	_systemControl.critiqueView.hidden = NO;
     [_systemControl openKeyboard];
 
 
@@ -854,7 +857,9 @@ void EditBoxImplIOS::closeKeyboard()
 
 void EditBoxImplIOS::onEndEditing()
 {
-	_systemControl.textField.hidden = YES;
+    _systemControl.critiqueView.hidden = YES;
+//    [_systemControl.textField resignFirstResponder];
+//    [_systemControl.critiqueView removeFromSuperview];
     _label->getParent()->getChildByName("_shuLabel")->removeFromParentAndCleanup(true);
 	if(strlen(getText()) == 0)
 	{
