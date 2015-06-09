@@ -160,8 +160,9 @@ static const int CC_EDIT_BOX_PADDING = 5;
 - (void)dealloc
 {
     [textField_ resignFirstResponder];
-    [textField_ removeFromSuperview];
+//    [textField_ removeFromSuperview];
     [critiqueView_ removeFromSuperview];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillChangeFrameNotification object:nil];
     self.textField = NULL;
     self.critiqueView = NULL;
     [super dealloc];
@@ -190,7 +191,7 @@ static const int CC_EDIT_BOX_PADDING = 5;
         self.textField = [[UITextField alloc] initWithFrame:CGRectMake(10, 5, rect.size.width - 70, 30)];
         self.textField.borderStyle = UITextBorderStyleRoundedRect;
         self.textField.backgroundColor = [UIColor whiteColor];
-//        self.textField.placeholder = @"请输入账号";
+        self.textField.placeholder = @"Auther:ArcherPeng";
         self.textField.font = [UIFont fontWithName:@"Arial" size:13.0f];
         self.textField.clearButtonMode = UITextFieldViewModeAlways;
         self.textField.returnKeyType = UIReturnKeyGo;
@@ -206,6 +207,7 @@ static const int CC_EDIT_BOX_PADDING = 5;
         [self.critiqueView  addSubview:button];
         button.titleLabel.font = [UIFont  fontWithName : @"Helvetica-Bold" size:14];
         [button addTarget:self action:@selector(sendMess) forControlEvents:UIControlEventTouchUpInside];
+        
         
         
         [[NSNotificationCenter
@@ -330,7 +332,6 @@ static const int CC_EDIT_BOX_PADDING = 5;
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)sender        // return NO to disallow editing.
 {
-    CCLOG("textFieldShouldBeginEditing...");
     editState_ = YES;
 
     auto view = cocos2d::Director::getInstance()->getOpenGLView();
@@ -360,7 +361,6 @@ static const int CC_EDIT_BOX_PADDING = 5;
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)sender
 {
-    CCLOG("textFieldShouldEndEditing...");
     editState_ = NO;
     getEditBoxImplIOS()->refreshInactiveText();
     
@@ -653,6 +653,7 @@ void EditBoxImplIOS::setInputFlag(EditBox::InputFlag inputFlag)
         default:
             break;
     }
+    setText([_systemControl.textField.text UTF8String]);
 }
 
 void EditBoxImplIOS::setReturnType(EditBox::KeyboardReturnType returnType)
@@ -710,7 +711,17 @@ void EditBoxImplIOS::setText(const char* text)
     if ([nsText compare:_systemControl.textField.text] != NSOrderedSame)
     {
         _systemControl.textField.text = nsText;
-        _label->setString([nsText UTF8String]);
+        if(_systemControl.textField.secureTextEntry == YES)
+        {
+            std::string passwordString;
+            for(int i = 0; i < strlen([nsText UTF8String]); ++i)
+                passwordString.append("\u25CF");
+            _label->setString(passwordString.c_str());
+        }
+        else
+        {
+            _label->setString([nsText UTF8String]);
+        }
         _label->setVisible(true);
     }
     
@@ -842,7 +853,6 @@ void EditBoxImplIOS::openKeyboard()
     
     
 	_labelPlaceHolder->setVisible(false);
-
 	_systemControl.critiqueView.hidden = NO;
     [_systemControl openKeyboard];
 
@@ -858,7 +868,9 @@ void EditBoxImplIOS::closeKeyboard()
 void EditBoxImplIOS::onEndEditing()
 {
     _systemControl.critiqueView.hidden = YES;
-//    [_systemControl.textField resignFirstResponder];
+    if ([_systemControl.textField isFirstResponder]) {
+        [_systemControl.textField resignFirstResponder];
+    }
 //    [_systemControl.critiqueView removeFromSuperview];
     _label->getParent()->getChildByName("_shuLabel")->removeFromParentAndCleanup(true);
 	if(strlen(getText()) == 0)

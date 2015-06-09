@@ -64,7 +64,7 @@
 @property(nonatomic, retain) UITextField* textField;
 @property(nonatomic, readonly, getter = isEditState) BOOL editState;
 @property(nonatomic, assign) void* editBox;
-@property (nonatomic, strong) UIView *critiqueView;
+@property (nonatomic, retain) UIView *critiqueView;
 
 -(id) initWithFrame: (CGRect) frameRect editBox: (void*) editBox;
 -(void) doAnimationWhenKeyboardMoveWithDuration:(float)duration distance:(float)distance;
