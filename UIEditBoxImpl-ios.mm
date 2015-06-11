@@ -688,7 +688,7 @@ bool EditBoxImplIOS::isEditing()
 void EditBoxImplIOS::refreshInactiveText()
 {
     const char* text = getText();
-    if(_systemControl.textField.hidden == YES)
+    if(true or _systemControl.textField.hidden == YES)
     {
 		setInactiveText(text);
 		if(strlen(text) == 0)
@@ -704,35 +704,35 @@ void EditBoxImplIOS::refreshInactiveText()
 		}
 	}
 }
-
+NSString* removeSiriString(NSString* str)
+{
+    NSString* siriString = @"\xef\xbf\xbc";
+    return [str stringByReplacingOccurrencesOfString:siriString withString:@""];
+}
 void EditBoxImplIOS::setText(const char* text)
 {
     NSString* nsText =[NSString stringWithUTF8String:text];
     if ([nsText compare:_systemControl.textField.text] != NSOrderedSame)
     {
         _systemControl.textField.text = nsText;
-        if(_systemControl.textField.secureTextEntry == YES)
-        {
-            std::string passwordString;
-            for(int i = 0; i < strlen([nsText UTF8String]); ++i)
-                passwordString.append("\u25CF");
-            _label->setString(passwordString.c_str());
-        }
-        else
-        {
-            _label->setString([nsText UTF8String]);
-        }
-        _label->setVisible(true);
+//        if(_systemControl.textField.secureTextEntry == YES)
+//        {
+//            std::string passwordString;
+//            for(int i = 0; i < strlen([nsText UTF8String]); ++i)
+//                passwordString.append("\u25CF");
+//            _label->setString(passwordString.c_str());
+//        }
+//        else
+//        {
+//            _label->setString([nsText UTF8String]);
+//        }
+//        _label->setVisible(true);
     }
     
     refreshInactiveText();
 }
 
-NSString* removeSiriString(NSString* str)
-{
-    NSString* siriString = @"\xef\xbf\xbc";
-    return [str stringByReplacingOccurrencesOfString:siriString withString:@""];
-}
+
 
 const char*  EditBoxImplIOS::getText(void)
 {

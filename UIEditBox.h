@@ -250,7 +250,8 @@ namespace ui {
          * @lua NA
          */
         EditBoxDelegate* getDelegate();
-            
+
+        
 #if CC_ENABLE_SCRIPT_BINDING
         /**
          * Registers a script function that will be called for EditBox events.
